@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Download, Mail, ArrowRight, Github, Linkedin, Twitter, ExternalLink, ChevronDown } from 'lucide-react'
 import api from '../lib/api'
+import { useReducedMotion, getFadeUp, getInViewProps } from '../lib/motion'
 
 const iconMap = { github: Github, linkedin: Linkedin, twitter: Twitter, email: Mail }
 
@@ -12,6 +13,8 @@ export default function HomePage() {
   const [featuredProjects, setFeaturedProjects] = useState([])
   const [skills, setSkills] = useState([])
   const [loading, setLoading] = useState(true)
+  const reducedMotion = useReducedMotion()
+  const fadeUp = getFadeUp(reducedMotion)
 
   useEffect(() => {
     Promise.all([
@@ -27,21 +30,13 @@ export default function HomePage() {
     }).catch(() => {}).finally(() => setLoading(false))
   }, [])
 
-  const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: (i = 0) => ({
-      opacity: 1, y: 0,
-      transition: { duration: 0.6, delay: i * 0.1, ease: 'easeOut' }
-    })
-  }
-
   return (
     <div>
       {/* Hero Section */}
       <section className="relative min-h-[calc(100vh-4rem)] flex items-center hero-grid overflow-hidden">
-        {/* Background glow */}
-        <div className="absolute inset-0 bg-hero-glow pointer-events-none" />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[100px] pointer-events-none" />
+        {/* Background glow — desktop only (blur is expensive on mobile GPUs) */}
+        <div className="absolute inset-0 bg-hero-glow pointer-events-none hidden md:block" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[100px] pointer-events-none hidden md:block" />
 
         <div className="section-container relative py-20">
           <div className="max-w-3xl">
@@ -143,9 +138,7 @@ export default function HomePage() {
         <section className="py-24 border-t border-border-color">
           <div className="section-container">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              {...getInViewProps(reducedMotion)}
               className="flex items-end justify-between mb-12"
             >
               <div>
@@ -161,15 +154,18 @@ export default function HomePage() {
               {featuredProjects.map((project, i) => (
                 <motion.div
                   key={project.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
+                  {...getInViewProps(reducedMotion, i * 0.1)}
                   className="card group cursor-pointer"
                 >
                   {project.image && (
                     <div className="w-full h-40 rounded-lg overflow-hidden mb-4 bg-surface-hover">
-                      <img src={project.image} alt={project.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img
+                        src={project.image}
+                        alt={project.name}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
                     </div>
                   )}
                   <div className="flex items-start justify-between mb-3">
@@ -219,9 +215,7 @@ export default function HomePage() {
         <section className="py-24 border-t border-border-color bg-bg-secondary">
           <div className="section-container">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              {...getInViewProps(reducedMotion)}
               className="text-center mb-12"
             >
               <p className="text-accent-light text-sm font-medium mb-2 font-mono">// technologies</p>
@@ -233,10 +227,14 @@ export default function HomePage() {
               {skills.map((skill, i) => (
                 <motion.div
                   key={skill.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
+                  {...(reducedMotion
+                    ? { initial: false, animate: { opacity: 1, scale: 1 } }
+                    : {
+                        initial: { opacity: 0, scale: 0.9 },
+                        whileInView: { opacity: 1, scale: 1 },
+                        viewport: { once: true },
+                        transition: { delay: i * 0.05 },
+                      })}
                   className="flex items-center gap-2 px-4 py-2 bg-surface border border-border-color rounded-lg hover:border-accent/40 transition-all duration-200"
                 >
                   <span className="text-text-primary text-sm font-medium">{skill.name}</span>

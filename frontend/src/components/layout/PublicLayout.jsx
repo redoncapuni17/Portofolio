@@ -31,7 +31,7 @@ export default function PublicLayout() {
     <div className="min-h-screen bg-bg-primary">
       {/* Navbar */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-bg-primary/90 backdrop-blur-md border-b border-border-color' : ''
+        scrolled ? 'bg-bg-primary md:bg-bg-primary/90 md:backdrop-blur-md border-b border-border-color' : ''
       }`}>
         <div className="section-container">
           <div className="flex items-center justify-between h-16">
@@ -82,7 +82,7 @@ export default function PublicLayout() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-border-color bg-bg-primary/95 backdrop-blur-md"
+              className="md:hidden border-t border-border-color bg-bg-primary md:bg-bg-primary/95 md:backdrop-blur-md"
             >
               <div className="section-container py-4 flex flex-col gap-1">
                 {navItems.map(item => (

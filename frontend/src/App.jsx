@@ -1,32 +1,33 @@
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { AuthProvider, useAuth } from './hooks/useAuth'
-
-// Public pages
 import PublicLayout from './components/layout/PublicLayout'
-import HomePage from './pages/Home'
-import AboutPage from './pages/About'
-import ExperiencePage from './pages/Experience'
-import SkillsPage from './pages/Skills'
-import ProjectsPage from './pages/Projects'
-import CertificationsPage from './pages/Certifications'
-import EducationPage from './pages/Education'
-import ContactPage from './pages/Contact'
+import PageLoader from './components/ui/PageLoader'
 
-// Admin pages
-import AdminLayout from './components/layout/AdminLayout'
-import AdminLogin from './pages/admin/Login'
-import AdminDashboard from './pages/admin/Dashboard'
-import AdminProfile from './pages/admin/Profile'
-import AdminExperiences from './pages/admin/Experiences'
-import AdminEducation from './pages/admin/Education'
-import AdminSkills from './pages/admin/Skills'
-import AdminProjects from './pages/admin/Projects'
-import AdminCertifications from './pages/admin/Certifications'
-import AdminMessages from './pages/admin/Messages'
-import AdminSocialLinks from './pages/admin/SocialLinks'
-import AdminSEO from './pages/admin/SEO'
+// Public pages — lazy loaded per route
+const HomePage = lazy(() => import('./pages/Home'))
+const AboutPage = lazy(() => import('./pages/About'))
+const ExperiencePage = lazy(() => import('./pages/Experience'))
+const SkillsPage = lazy(() => import('./pages/Skills'))
+const ProjectsPage = lazy(() => import('./pages/Projects'))
+const CertificationsPage = lazy(() => import('./pages/Certifications'))
+const EducationPage = lazy(() => import('./pages/Education'))
+const ContactPage = lazy(() => import('./pages/Contact'))
+
+// Admin pages — lazy loaded (keeps recharts/heavy admin code off the public bundle)
+const AdminLayout = lazy(() => import('./components/layout/AdminLayout'))
+const AdminLogin = lazy(() => import('./pages/admin/Login'))
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'))
+const AdminProfile = lazy(() => import('./pages/admin/Profile'))
+const AdminExperiences = lazy(() => import('./pages/admin/Experiences'))
+const AdminEducation = lazy(() => import('./pages/admin/Education'))
+const AdminSkills = lazy(() => import('./pages/admin/Skills'))
+const AdminProjects = lazy(() => import('./pages/admin/Projects'))
+const AdminCertifications = lazy(() => import('./pages/admin/Certifications'))
+const AdminMessages = lazy(() => import('./pages/admin/Messages'))
+const AdminSocialLinks = lazy(() => import('./pages/admin/SocialLinks'))
+const AdminSEO = lazy(() => import('./pages/admin/SEO'))
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -43,8 +44,8 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Toaster 
-          position="top-right" 
+        <Toaster
+          position="top-right"
           theme="dark"
           toastOptions={{
             style: {
@@ -54,38 +55,40 @@ export default function App() {
             }
           }}
         />
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<PublicLayout />}>
-            <Route index element={<HomePage />} />
-            <Route path="about" element={<AboutPage />} />
-            <Route path="experience" element={<ExperiencePage />} />
-            <Route path="skills" element={<SkillsPage />} />
-            <Route path="projects" element={<ProjectsPage />} />
-            <Route path="certifications" element={<CertificationsPage />} />
-            <Route path="education" element={<EducationPage />} />
-            <Route path="contact" element={<ContactPage />} />
-          </Route>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<PublicLayout />}>
+              <Route index element={<HomePage />} />
+              <Route path="about" element={<AboutPage />} />
+              <Route path="experience" element={<ExperiencePage />} />
+              <Route path="skills" element={<SkillsPage />} />
+              <Route path="projects" element={<ProjectsPage />} />
+              <Route path="certifications" element={<CertificationsPage />} />
+              <Route path="education" element={<EducationPage />} />
+              <Route path="contact" element={<ContactPage />} />
+            </Route>
 
-          {/* Admin Routes */}
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={
-            <ProtectedRoute>
-              <AdminLayout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<AdminDashboard />} />
-            <Route path="profile" element={<AdminProfile />} />
-            <Route path="experiences" element={<AdminExperiences />} />
-            <Route path="education" element={<AdminEducation />} />
-            <Route path="skills" element={<AdminSkills />} />
-            <Route path="projects" element={<AdminProjects />} />
-            <Route path="certifications" element={<AdminCertifications />} />
-            <Route path="messages" element={<AdminMessages />} />
-            <Route path="social-links" element={<AdminSocialLinks />} />
-            <Route path="seo" element={<AdminSEO />} />
-          </Route>
-        </Routes>
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<AdminDashboard />} />
+              <Route path="profile" element={<AdminProfile />} />
+              <Route path="experiences" element={<AdminExperiences />} />
+              <Route path="education" element={<AdminEducation />} />
+              <Route path="skills" element={<AdminSkills />} />
+              <Route path="projects" element={<AdminProjects />} />
+              <Route path="certifications" element={<AdminCertifications />} />
+              <Route path="messages" element={<AdminMessages />} />
+              <Route path="social-links" element={<AdminSocialLinks />} />
+              <Route path="seo" element={<AdminSEO />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </AuthProvider>
   )

@@ -101,7 +101,13 @@ export default function ProjectsPage() {
             >
               {project.image && (
                 <div className="w-full h-44 rounded-lg overflow-hidden mb-4 bg-surface-hover shrink-0">
-                  <img src={project.image} alt={project.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img
+                    src={project.image}
+                    alt={project.name}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
               )}
 
